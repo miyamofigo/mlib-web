@@ -1,4 +1,4 @@
-(defproject mlib-web "0.1.0-SNAPSHOT"
+(defproject com.miyamofigo/mlib-web "0.1.0-SNAPSHOT"
   :description "Library for developing web media api with Java, Clojure"
   :source-paths ["src/clj"]
   :java-source-paths ["test/java"]
@@ -23,7 +23,8 @@
                  [org.springframework.security/spring-security-core "4.1.0.RELEASE"]
                  [org.springframework.security/spring-security-web "4.1.0.RELEASE"]
                  [com.miyamofigo/java8.nursery "0.2.0-SNAPSHOT"]]
-  :repositories [["ghpages" "http://miyamofigo.github.io/java8-nursery"]]
+  :repositories [["ghpages" "http://miyamofigo.github.io/java8-nursery"]
+                 ["snapshots" "file:/home/mlinux/train/clojure/mlib-web"]]
   :profiles
   {:dev {:dependencies [[javax.servlet/javax.servlet-api "3.1.0"]
                         [ring/ring-mock "0.3.0"]]}})
