@@ -233,4 +233,17 @@
 (defmethod writer :output-stream 
   ([_ out] (java.io.OutputStreamWriter. out))
   ([_ out charset] (java.io.OutputStreamWriter. out charset)))
+
+(defmulti builder first-arg)
+(defmethod builder :calendar [_]  (java.util.Calendar$Builder.))
+
+(defn week-date! [^java.util.Calendar$Builder builder, year, cnt, dayOfWeek]
+  (.setWeekDate builder year cnt dayOfWeek))
+
+(defn date! [^java.util.Calendar$Builder builder, year, month, day]
+  (.setDate builder year month day))
+
+(defmulti build first-arg)
+(defmethod build :calendar [_, ^java.util.Calendar$Builder builder]
+  (.build builder))
    
