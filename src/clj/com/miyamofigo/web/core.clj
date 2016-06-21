@@ -105,7 +105,7 @@
 
   Option
   (some?? [this] (.. this optional isPresent))
-  (none?? [this] (not (.. this optional isPresent)))
+  (none?? [this] (not (.. this optional isPresent))))
 
 (defprotocol ResultHelper
   (ok? [this])
