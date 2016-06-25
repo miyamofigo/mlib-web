@@ -1,8 +1,10 @@
 (ns com.miyamofigo.web.extern.spring
   (:require [com.miyamofigo.web.core :refer [first-arg]])
   (:import 
+    java.util.Properties
     org.springframework.context.ApplicationContext
     org.springframework.context.annotation.AnnotationConfigApplicationContext
+    [org.springframework.core.env ConfigurableEnvironment MutablePropertySources PropertiesPropertySource]
     org.springframework.security.core.Authentication
     [org.springframework.security.core.context SecurityContext SecurityContextHolder]))
 
@@ -37,4 +39,22 @@
 
 (defn get-bean [^ApplicationContext ctx, ^java.lang.Class target] 
   (.getBean ctx target))
+
+(defmulti get-env first-arg)
+(defmethod get-env :app-ctx [_, ^ApplicationContext ctx]
+  (.getEnvironment ctx))
+
+(defn prop-sources [^ConfigurableEnvironment env]
+  (.getPropertySources env))
+
+(defmulti add! first-arg)
+(defmethod add! :props-source 
+  [_, ^MutablePropertySources sources, ^PropertiesPropertySource new-source]
+  (.addLast sources new-source))
+
+(defn wrap-props [nam, ^Properties props] (PropertiesPropertySource. nam props))
+
+(defn add-props! [^ApplicationContext ctx, nam, ^Properties props]
+  (let [sources (-> (get-env :app-ctx ctx) prop-sources)]
+    (add! :props-source (wrap-props nam props)))) 
 
