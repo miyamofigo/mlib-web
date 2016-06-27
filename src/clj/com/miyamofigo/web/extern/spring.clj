@@ -44,8 +44,12 @@
 (defmethod get-env :app-ctx [_, ^ApplicationContext ctx]
   (.getEnvironment ctx))
 
-(defn prop-sources [^ConfigurableEnvironment env]
+(defmulti prop-sources first-arg) 
+(defmethod prop-sources :env [_, ^ConfigurableEnvironment env]
   (.getPropertySources env))
+
+(defmethod prop-sources :app-ctx [_, ^ApplicationContext ctx]
+  (prop-sources :env (get-env :app-ctx ctx)))
 
 (defmulti add! first-arg)
 (defmethod add! :props-source 

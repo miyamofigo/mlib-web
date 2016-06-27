@@ -2,7 +2,9 @@
   (:require [clojure.data.json :as json] 
             [cognitect.transit :as transit]
             [com.miyamofigo.web.core :refer [to-str first-arg] :as core]
-            [com.miyamofigo.web.extern.jackson :as jackson]))
+            [com.miyamofigo.web.string :as string]
+            [com.miyamofigo.web.extern.jackson :as jackson]
+            [com.miyamofigo.web.extern.spring :as spring]))
 
 (defn- out [] (core/ostream :byte))
 
@@ -99,3 +101,22 @@
 
 (defn javaObj->map [obj]
   (json->map (javaObj->json obj)))
+
+(defn map->prop [m]
+  (let [dst (core/prop)]
+    (loop [src m]
+      (when-let [[k v] (first src)]
+        (core/prop! dst (string/keyword->str k) (str v))
+        (recur (rest src))))
+    dst))
+
+(defn add-all-props! [ctx pseq]
+  (loop [target (spring/prop-sources :app-ctx ctx), 
+         pseq pseq]
+    (when-let [propsmap (first pseq)]
+      (spring/add! :props-source 
+                   target 
+                   (spring/wrap-props (string/keyword->str (first propsmap))
+                                      (-> propsmap fnext map->prop)))
+      (recur target (rest pseq)))))
+
