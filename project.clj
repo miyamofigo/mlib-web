@@ -23,7 +23,7 @@
                  [org.springframework.security/spring-security-core "4.1.0.RELEASE"]
                  [org.springframework.security/spring-security-web "4.1.0.RELEASE"]
                  [com.miyamofigo/java8.nursery "0.2.0-SNAPSHOT"]]
-  :repositories [["ghpages" "http://miyamofigo.github.io/java8-nursery"]
+  :repositories [["ghpages" "http://miyamofigo.github.io/java8-nursery-repo"]
                  ["snapshots" "file:/home/mlinux/train/clojure/mlib-web-repo"]]
   :profiles
   {:dev {:dependencies [[javax.servlet/javax.servlet-api "3.1.0"]

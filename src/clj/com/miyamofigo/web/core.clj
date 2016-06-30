@@ -1,4 +1,5 @@
-(ns com.miyamofigo.web.core)
+(ns com.miyamofigo.web.core
+  (:import com.miyamofigo.java8.nursery.Tuple))
 
 (defn fetch-class [x & _] (class x))
 
@@ -246,4 +247,12 @@
 (defmulti build first-arg)
 (defmethod build :calendar [_, ^java.util.Calendar$Builder builder]
   (.build builder))
-   
+  
+(defn tuple 
+  ([] (Tuple/empty))
+  ([t1] (Tuple/of t1))
+  ([t1 t2] (Tuple/of t1 t2))
+  ([t1 t2 t3] (Tuple/of t1 t2 t3))
+  ([t1 t2 t3 t4] (Tuple/of t1 t2 t3 t4))
+  ([t1 t2 t3 t4 t5] (Tuple/of t1 t2 t3 t4 t5)))
+
