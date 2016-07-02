@@ -37,8 +37,11 @@
 (defmulti refresh! first-arg)
 (defmethod refresh! :app-ctx [_, ^ApplicationContext ctx] (.refresh ctx))
 
-(defn get-bean [^ApplicationContext ctx, ^java.lang.Class target] 
-  (.getBean ctx target))
+(defn get-bean 
+  ([^ApplicationContext ctx, ^java.lang.Class target] 
+    (.getBean ctx target))
+  ([^ApplicationContext ctx, ^java.lang.Class target, ^java.lang.String nam] 
+    (.getBean ctx nam target)))
 
 (defmulti get-env first-arg)
 (defmethod get-env :app-ctx [_, ^ApplicationContext ctx]
