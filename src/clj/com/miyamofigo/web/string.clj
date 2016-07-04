@@ -1,8 +1,9 @@
 (ns com.miyamofigo.web.string
-  (:require [clojure.string :refer [split upper-case lower-case starts-with?]]))
+  (:require [clojure.string :refer [split upper-case lower-case starts-with? capitalize]]))
 
 (defonce REG_SPACE #" ")
 (defonce REG_APOSTROPHY #"\.")
+(defonce REG_HYPHEN #"-")
 
 (defn- split-n-? [src func & [delim]] 
   (-> src (split (if (nil? delim) REG_SPACE delim)) func))
@@ -73,3 +74,11 @@
 
 (defn bytes->str [b] (java.lang.String. b)) 
 
+(defn capitalize-without-first [str-vec]
+  (concat (-> str-vec first vector) (->> str-vec next (map capitalize))))
+
+(defn split-n-capitalize-without-first [s delim]
+  (split-n-? s capitalize-without-first delim))
+
+(defn clj-str->javaStr [s]
+  (apply str (split-n-capitalize-without-first s REG_HYPHEN)))

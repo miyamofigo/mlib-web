@@ -106,7 +106,9 @@
   (let [dst (core/prop)]
     (loop [src m]
       (when-let [[k v] (first src)]
-        (core/prop! dst (string/keyword->str k) (str v))
+        (core/prop! dst 
+                    (-> k string/keyword->str string/clj-str->javaStr)
+                    (str v))
         (recur (rest src))))
     dst))
 
