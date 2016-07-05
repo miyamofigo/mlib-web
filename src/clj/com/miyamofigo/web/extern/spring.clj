@@ -6,7 +6,8 @@
     org.springframework.context.annotation.AnnotationConfigApplicationContext
     [org.springframework.core.env ConfigurableEnvironment MutablePropertySources PropertiesPropertySource]
     org.springframework.security.core.Authentication
-    [org.springframework.security.core.context SecurityContext SecurityContextHolder]))
+    [org.springframework.security.core.context SecurityContext SecurityContextHolder]
+    org.springframework.security.crypto.password.PasswordEncoder))
 
 (defn current-ctx [] 
   (SecurityContextHolder/getContext))
@@ -65,3 +66,11 @@
   (let [sources (-> (get-env :app-ctx ctx) prop-sources)]
     (add! :props-source (wrap-props nam props)))) 
 
+(defmulti encode first-arg)
+(defmethod encode :password [_, ^PasswordEncoder encoder, ^java.lang.String s] 
+  (. encoder (encode s)))
+
+(defmulti matches first-arg)
+(defmethod matches :password 
+  [_, ^PasswordEncoder encoder, ^java.lang.String raw, ^java.lang.String encoded]
+  (. encoder (matches raw encoded))) 
