@@ -269,5 +269,5 @@
   (.getEncoded k))
 
 (defmethod generate :secret-bytes-key [_, ^javax.crypto.KeyGenerator g]
-  (->> g (generate :secret-key) -encoded)
+  (->> g (generate :secret-key) -encoded))
 
