@@ -256,3 +256,18 @@
   ([t1 t2 t3 t4] (Tuple/of t1 t2 t3 t4))
   ([t1 t2 t3 t4 t5] (Tuple/of t1 t2 t3 t4 t5)))
 
+(defmulti key-gen first-arg)
+(defmethod key-gen :secret-key [_ algo] 
+  (javax.crypto.KeyGenerator/getInstance algo))
+
+(defmulti generate first-arg)
+(defmethod generate :secret-key 
+  [_, ^javax.crypto.KeyGenerator g]
+  (.generateKey g))
+
+(defn -encoded [^javax.crypto.SecretKey k] 
+  (.getEncoded k))
+
+(defmethod generate :secret-bytes-key [_, ^javax.crypto.KeyGenerator g]
+  (->> g (generate :secret-key) -encoded)
+

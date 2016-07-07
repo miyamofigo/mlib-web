@@ -74,3 +74,23 @@
 (defmethod matches :password 
   [_, ^PasswordEncoder encoder, ^java.lang.String raw, ^java.lang.String encoded]
   (. encoder (matches raw encoded))) 
+
+(defmulti signer first-arg)
+(defmethod signer :mac [_ secret]
+  (MacSigner. secret))
+
+(defmethod ^Jwt encode :jwt 
+  [_, ^java.lang.CharSequence content, ^Signer s]
+  (JwtHelper/encode content s))
+
+(defmulti decode first-arg)
+(defmethod ^Jwt decode :jwt [_, ^java.lang.String token]
+  (JwtHelper/decode token))
+
+(defmulti encoded first-arg)
+(defmethod ^java.lang.String encoded :jwt [_, ^Jwt token]
+  (.getEncoded token))
+
+(defmulti verify! first-arg)
+(defmethod verify! :jwt [_, ^Jwt token, ^SignatureVerifier v]
+  (. token (verifySignature v)))
