@@ -7,7 +7,9 @@
     [org.springframework.core.env ConfigurableEnvironment MutablePropertySources PropertiesPropertySource]
     org.springframework.security.core.Authentication
     [org.springframework.security.core.context SecurityContext SecurityContextHolder]
-    org.springframework.security.crypto.password.PasswordEncoder))
+    org.springframework.security.crypto.password.PasswordEncoder
+    [org.springframework.security.jwt Jwt JwtHelper]
+    [org.springframework.security.jwt.crypto.sign MacSigner SignatureVerifier Signer]))
 
 (defn current-ctx [] 
   (SecurityContextHolder/getContext))
