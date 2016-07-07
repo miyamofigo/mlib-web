@@ -96,3 +96,6 @@
 (defmulti verify! first-arg)
 (defmethod verify! :jwt [_, ^Jwt token, ^SignatureVerifier v]
   (. token (verifySignature v)))
+
+(defn ^java.lang.String claims [^Jwt token]
+  (.getClaims token))
