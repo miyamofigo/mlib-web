@@ -6,39 +6,36 @@
             [com.miyamofigo.web.string :as string]
             [com.miyamofigo.web.extern.spring :as spring]))
 
-(defn current-ctx [] (spring/current-ctx))
+(defmulti current-ctx first-arg)
+(defmulti fetch first-arg)
+(defmulti prepare first-arg)
 
-(defn set-ctx! [ctx] (spring/set-ctx! ctx))
+(defmethod current-ctx :security [_] 
+  (spring/current-ctx :security))
 
-(defn current-user [] (spring/get-user (current-ctx)))
+(defn ctx! [ctx] (spring/ctx! :security ctx))
 
-(defn set-auth! [ctx auth] (spring/set-auth! ctx auth))
+(defn curr-user [] 
+  (spring/get-user (current-ctx)))
 
-(defmulti parse first-arg)
+(defn auth! [ctx auth] 
+  (spring/auth! ctx auth))
 
-(defmethod parse :xml [_ s & [startparse]]
-  (if startparse
-    (xml/parse s startparse)
-    (xml/parse s)))
+(defn convert-keys [raw-map func]
+  (let [converted (for [[k v] raw-map] 
+                    (vector (func k) v)),
+        target {}]
+    (->> converted
+      (apply concat)
+      (apply assoc target))))
 
-(defmethod parse :http-headers [_ hs] 
-  (let [seq* (for [[k v] hs] [(keyword k) v])] 
-    (->> seq* 
-      (apply concat) (apply assoc {}))))
+(defn as-cljmap [raw-map]
+  (convert-keys raw-map keyword))
 
-(defn parse-headers 
-  ([hs] (parse-headers hs :http-headers))
-  ([hs typ] (parse typ hs)))
-
-(defn replace-headers
-  ([req] 
-    (replace-headers parse-headers))
-  ([req func] 
-    (update req :headers func)))
+(defmethod prepare :req-headers [_ req]
+  (update req :headers as-cljmap))
 
 (defn req->auth [req] (get-in req [:headers :authorization]))
-
-(defmulti fetch first-arg)
 
 (defmethod fetch :auth-basic-token [_ code] (string/split-n-take-second code))
 

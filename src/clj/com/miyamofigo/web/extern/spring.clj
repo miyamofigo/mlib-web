@@ -1,5 +1,5 @@
 (ns com.miyamofigo.web.extern.spring
-  (:require [com.miyamofigo.web.core :refer [first-arg]])
+  (:require [com.miyamofigo.web.core :refer [first-arg fetch-class]])
   (:import 
     java.util.Properties
     org.springframework.context.ApplicationContext
@@ -11,34 +11,55 @@
     [org.springframework.security.jwt Jwt JwtHelper]
     [org.springframework.security.jwt.crypto.sign MacSigner SignatureVerifier Signer]))
 
-(defn current-ctx [] 
+(defmulti add! first-arg)
+(defmulti auth fetch-class)
+(defmulti auth! fetch-class)
+(defmulti current-ctx first-arg)
+(defmulti ctx! first-arg)
+(defmulti decode first-arg)
+(defmulti encode first-arg)
+(defmulti encoded first-arg)
+(defmulti get-env first-arg)
+(defmulti get-user fetch-class)
+(defmulti matches first-arg)
+(defmulti princ fetch-class)
+(defmulti prop-sources first-arg) 
+(defmulti refresh! first-arg)
+(defmulti register! first-arg)
+(defmulti signer first-arg)
+(defmulti verify! first-arg)
+
+(defmethod current-ctx :security [_]
   (SecurityContextHolder/getContext))
 
-(defn auth [^SecurityContext ctx] (.getAuthentication ctx))
+(defmethod auth SecurityContext [ctx]
+  (.getAuthentication ctx))
 
-(defn princ [^Authentication auth] (.getPrincipal auth))
+(defmethod princ Authentication [auth]
+  (.getPrincipal auth))
 
-(defn username [principal] (.getUsername principal))
+(defn- -username [principal] 
+  (.getUsername principal))
 
-(defn get-user [^SecurityContext ctx] (-> ctx auth princ username))
+(defmethod get-user SecurityContext [ctx]
+  (-> ctx auth princ -username))
 
-(defn set-ctx! [^SecurityContext ctx] 
+(defmethod ctx! :security [_, ^SecurityContext ctx] 
   (SecurityContextHolder/setContext ctx)) 
 
-(defn set-auth! [^SecurityContext ctx, ^Authentication auth] 
+(defmethod auth! SecurityContext [ctx, ^Authentication auth]
   (. ctx (setAuthentication auth)))
 
 (defn app-ctx  
   ([] (AnnotationConfigApplicationContext.))
   ([& cls] (AnnotationConfigApplicationContext. (into-array java.lang.Class cls))))
 
-(defmulti register! first-arg)
 (defmethod register! :app-ctx [_, ^ApplicationContext ctx, & configs]
   (when-not (empty? configs) 
     (.register ctx (into-array java.lang.Class configs))))
 
-(defmulti refresh! first-arg)
-(defmethod refresh! :app-ctx [_, ^ApplicationContext ctx] (.refresh ctx))
+(defmethod refresh! :app-ctx [_, ^ApplicationContext ctx] 
+  (.refresh ctx))
 
 (defn get-bean 
   ([^ApplicationContext ctx, ^java.lang.Class target] 
@@ -46,18 +67,15 @@
   ([^ApplicationContext ctx, ^java.lang.Class target, ^java.lang.String nam] 
     (.getBean ctx nam target)))
 
-(defmulti get-env first-arg)
 (defmethod get-env :app-ctx [_, ^ApplicationContext ctx]
   (.getEnvironment ctx))
 
-(defmulti prop-sources first-arg) 
 (defmethod prop-sources :env [_, ^ConfigurableEnvironment env]
   (.getPropertySources env))
 
 (defmethod prop-sources :app-ctx [_, ^ApplicationContext ctx]
   (prop-sources :env (get-env :app-ctx ctx)))
 
-(defmulti add! first-arg)
 (defmethod add! :props-source 
   [_, ^MutablePropertySources sources, ^PropertiesPropertySource new-source]
   (.addLast sources new-source))
@@ -68,16 +86,13 @@
   (let [sources (-> (get-env :app-ctx ctx) prop-sources)]
     (add! :props-source (wrap-props nam props)))) 
 
-(defmulti encode first-arg)
 (defmethod encode :password [_, ^PasswordEncoder encoder, ^java.lang.String s] 
   (. encoder (encode s)))
 
-(defmulti matches first-arg)
 (defmethod matches :password 
   [_, ^PasswordEncoder encoder, ^java.lang.String raw, ^java.lang.String encoded]
   (. encoder (matches raw encoded))) 
 
-(defmulti signer first-arg)
 (defmethod signer :mac [_ secret]
   (MacSigner. secret))
 
@@ -85,15 +100,12 @@
   [_, ^java.lang.CharSequence content, ^Signer s]
   (JwtHelper/encode content s))
 
-(defmulti decode first-arg)
 (defmethod ^Jwt decode :jwt [_, ^java.lang.String token]
   (JwtHelper/decode token))
 
-(defmulti encoded first-arg)
 (defmethod ^java.lang.String encoded :jwt [_, ^Jwt token]
   (.getEncoded token))
 
-(defmulti verify! first-arg)
 (defmethod verify! :jwt [_, ^Jwt token, ^SignatureVerifier v]
   (. token (verifySignature v)))
 
